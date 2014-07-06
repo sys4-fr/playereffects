@@ -94,6 +94,7 @@ function playereffects.cancel_effect(effect_id)
 		playereffects.effect_types[effect.effect_type_id].cancel(effect)
 		playereffects.effects[effect_id] = nil
 	end
+	minetest.log("action", "Effect type "..effect.effect_type_id.." cancelled from player "..effect.playername.."!")
 end
 
 function playereffects.get_player_effects(playername)
