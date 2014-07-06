@@ -18,6 +18,27 @@ playereffects.inactive_effects = {}
 -- Variable for counting the effect_id
 playereffects.last_effect_id = 0
 
+--[=[ Load inactive_effects and last_effect_id from playereffects.mt, if this file exists  ]=]
+do
+	local filepath = minetest.get_worldpath().."/playereffects.mt"
+	local file = io.open(filepath, "r")
+	local string
+	if file then
+		minetest.log("action", "[playereffects] playereffects.mt opened.")
+		local string = file:read()
+		io.close(file)
+		if(string ~= nil) then
+			savetable = minetest.deserialize(string)
+			playereffects.inactive_effects = savetable.inactive_effects
+			minetest.debug("[playereffects] playereffects.mt successfully read.")
+			minetest.debug("[playereffects] inactive_effects = "..dump(playereffects.inactive_effects))
+			playereffects.last_effect_id = savetable.last_effect_id
+			minetest.debug("[playereffects] last_effect_id = "..dump(playereffects.last_effect_id))
+			
+		end
+	end
+end
+
 function playereffects.next_effect_id()
 	playereffects.last_effect_id = playereffects.last_effect_id + 1
 	return playereffects.last_effect_id
@@ -155,8 +176,7 @@ minetest.register_on_leaveplayer(function(player)
 		playereffects.inactive_effects[playername] = {}
 	end
 	for e=1,#effects do
-		local start_time = effects[e].start_time
-		local new_duration = os.difftime(leave_time, start_time)
+		local new_duration = effects[e].time_left - os.difftime(leave_time, effects[e].start_time)
 		local new_effect = effects[e]
 		new_effect.time_left = new_duration
 		table.insert(playereffects.inactive_effects[playername], new_effect)
@@ -164,6 +184,39 @@ minetest.register_on_leaveplayer(function(player)
 	end
 end)
 
+minetest.register_on_shutdown(function()
+	minetest.log("action", "[playereffects] Server shuts down. Rescuing data into playereffects.mt")
+	local shutdown_time = os.time()
+	local savetable = {}
+	local effects = playereffects.effects
+	local inactive_effects = playereffects.inactive_effects
+	for id,effect in pairs(effects) do
+		local new_duration = effect.time_left - os.difftime(shutdown_time, effect.start_time)
+		local new_effect = effect
+		new_effect.time_left = new_duration
+		if(inactive_effects[effect.playername] == nil) then
+			inactive_effects[effect.playername] = {}
+		end
+		table.insert(inactive_effects[effect.playername], new_effect)
+		playereffects.cancel_effect(effect.effect_id)
+	end
+
+	savetable.inactive_effects = inactive_effects
+	savetable.last_effect_id = playereffects.last_effect_id
+
+	savestring = minetest.serialize(savetable)
+
+	local filepath = minetest.get_worldpath().."/playereffects.mt"
+	local file = io.open(filepath, "w")
+	if file then
+		file:write(savestring)
+		io.close(file)
+		minetest.log("action", "[playereffects] Wrote playereffects data into "..filepath..".")
+	else
+		minetest.log("error", "[playereffects] Failed to write playereffects data into "..filepath..".")
+	end
+	
+end)
 
 minetest.register_on_joinplayer(function(player)
 	minetest.after(0, playereffects.join0, player)
@@ -190,11 +243,8 @@ minetest.register_globalstep(function()
 	end
 end)
 
---[[
-minetest.register_on_shutdown(function()
-	
-end)
-]]
+
+
 
 --[=[ HUD ]=]
 function playereffects.hud_update(player)
@@ -245,4 +295,4 @@ end
 
 -- EXAMPLES
 -- uncomment the line below if you want to try out the examples
--- dofile(minetest.get_modpath(minetest.get_current_modname()).."/examples.lua")
+dofile(minetest.get_modpath(minetest.get_current_modname()).."/examples.lua")
