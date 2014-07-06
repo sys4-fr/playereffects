@@ -161,6 +161,7 @@ function playereffects.hud_effect(effect_type_id, player, pos)
 		name = "effect_"..effect_type_id,
 		text = playereffects.effect_types[effect_type_id].description,
 		scale = { x = 20, y = 100},
+		alignment = 1,
 		direction = 1,
 		number = 0xFFFFFF,
 		offset = { x = 0, y = pos*20 } 
