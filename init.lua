@@ -90,7 +90,7 @@ function playereffects.apply_effect_type(effect_type_id, duration, player)
 	else
 		free_hudpos = biggest_hudpos + 1
 	end
-	local hudid = playereffects.hud_effect(effect_type_id, player, free_hudpos)
+	local hudid = playereffects.hud_effect(effect_type_id, player, free_hudpos, duration)
 
 	local effect = {
 			playername = playername, 
@@ -275,13 +275,13 @@ function playereffects.hud_clear(player)
 	end
 end
 
-function playereffects.hud_effect(effect_type_id, player, pos)
+function playereffects.hud_effect(effect_type_id, player, pos, time_left)
 	local id
 	id = player:hud_add({
 		hud_elem_type = "text",
 		position = { x = 1, y = 0.3 },
 		name = "effect_"..effect_type_id,
-		text = playereffects.effect_types[effect_type_id].description,
+		text = playereffects.effect_types[effect_type_id].description .. " ("..tostring(time_left).." s)",
 		scale = { x = 120, y = 20},
 		alignment = 1,
 		direction = 1,
