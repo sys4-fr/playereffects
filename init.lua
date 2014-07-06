@@ -15,11 +15,6 @@ playereffects.effects = {}
 Effects become inactive if a player leaves an become active again if they join again. ]]
 playereffects.inactive_effects = {}
 
---[[ table (indexed by player names) containing tables containing the active HUD IDs for players
-	Example: { ["Player 1"] = {1,2,3}, ["Player 2"] = {2}, ["Player 3"] = {} }
-]]
-playereffects.hudids = {}
-
 -- Variable for counting the effect_id
 playereffects.last_effect_id = 0
 
@@ -155,7 +150,6 @@ minetest.register_on_leaveplayer(function(player)
 	local effects = playereffects.get_player_effects(playername)
 
 	playereffects.hud_clear(player)
-	playereffects.hudids[playername] = nil
 
 	if(playereffects.inactive_effects[playername] == nil) then
 		playereffects.inactive_effects[playername] = {}
