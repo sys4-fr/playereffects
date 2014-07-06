@@ -67,7 +67,6 @@ function playereffects.apply_effect_type(effect_type_id, duration, player)
 		playereffects.cancel_effect_group(v, playername)
 	end
 	local effect_id = playereffects.next_effect_id()
---	local hudpos = #playereffects.get_player_effects(playername)
 	local effects = playereffects.get_player_effects(playername)
 	local smallest_hudpos
 	local biggest_hudpos = -1
@@ -219,10 +218,6 @@ minetest.register_on_shutdown(function()
 end)
 
 minetest.register_on_joinplayer(function(player)
-	minetest.after(0, playereffects.join0, player)
-end)
-
-function playereffects.join0(player)
 	local playername = player:get_player_name()
 
 	-- load all the effects again (if any)
@@ -233,8 +228,7 @@ function playereffects.join0(player)
 		end
 		playereffects.inactive_effects[playername] = nil
 	end
-
-end
+end)
 
 minetest.register_globalstep(function()
 	local players = minetest.get_connected_players()
@@ -248,13 +242,6 @@ end)
 
 --[=[ HUD ]=]
 function playereffects.hud_update(player)
---[[
-	playereffects.hud_clear(player)
-	local effects = playereffects.get_player_effects(player:get_player_name())
-	for e=1,#effects do
-		playereffects.hud_effect(effects[e].effect_type_id, player, effects[e].hudpos)
-	end
-]]
 	local now = os.time()
 	local effects = playereffects.get_player_effects(player:get_player_name())
 	for e=1,#effects do
@@ -293,6 +280,5 @@ function playereffects.hud_effect(effect_type_id, player, pos, time_left)
 end
 
 
--- EXAMPLES
--- uncomment the line below if you want to try out the examples
+-- LOAD EXAMPLES
 dofile(minetest.get_modpath(minetest.get_current_modname()).."/examples.lua")
