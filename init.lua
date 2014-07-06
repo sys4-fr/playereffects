@@ -63,7 +63,7 @@ function playereffects.apply_effect_type(effect_type_id, duration, player)
 		end
 		if(smallest_hudpos == nil) then
 			smallest_hudpos = hudpos
-		elseif(hudids[h] < smallest_hudpos) then
+		elseif(hudpos < smallest_hudpos) then
 			smallest_hudpos = hudpos
 		end
 	end
@@ -280,6 +280,19 @@ playereffects.register_effect_type("highjump", "greater jump height", {"jump"},
 		player:set_physics_override(nil,1,nil)
 	end
 )
+playereffects.register_effect_type("fly", "fly mode available", {"fly"},
+	function(player)
+		local playername = player:get_player_name()
+		local privs = minetest.get_player_privs(playername)
+		privs.fly = true
+		minetest.set_player_privs(playername, privs)
+	end,
+	function(effect)
+		local privs = minetest.get_player_privs(effect.playername)
+		privs.fly = nil
+		minetest.set_player_privs(effect.playername, privs)
+	end
+)
 
 
 minetest.register_chatcommand("fast", {
@@ -304,5 +317,14 @@ minetest.register_chatcommand("highjump", {
 	privs = {},
 	func = function(name, param)
 		playereffects.apply_effect_type("highjump", 20, minetest.get_player_by_name(name))
+	end,
+})
+
+minetest.register_chatcommand("fly", {
+	params = "",
+	description = "Grants you the fly privilege for a short time.",
+	privs = {},
+	func = function(name, param)
+		playereffects.apply_effect_type("fly", 20, minetest.get_player_by_name(name))
 	end,
 })
