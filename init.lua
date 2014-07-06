@@ -147,21 +147,22 @@ end)
 
 
 minetest.register_on_joinplayer(function(player)
+	minetest.after(0, playereffects.join0, player)
+end)
+
+function playereffects.join0(player)
 	local playername = player:get_player_name()
 
 	-- load all the effects again (if any)
 	if(playereffects.inactive_effects[playername] ~= nil) then
 		for i=1,#playereffects.inactive_effects[playername] do
 			local effect = playereffects.inactive_effects[playername][i]
---			minetest.after(0, function(effect, player)
---				playereffects.apply_effect_type(effect.effect_type_id, effect.time_left, player) end,
---			effect, player)
 			playereffects.apply_effect_type(effect.effect_type_id, effect.time_left, player)
 		end
 		playereffects.inactive_effects[playername] = nil
 	end
 
-end)
+end
 
 --[[
 minetest.register_on_shutdown(function()
