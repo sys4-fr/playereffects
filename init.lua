@@ -11,6 +11,10 @@ playereffects.effect_types = {}
 --[[ table containing all the active effects ]]
 playereffects.effects = {}
 
+--[[ table containing all the inactive effects.
+Effects become inactive if a player leaves an become active again if they join again. ]]
+playereffects.inactive_effects = {}
+
 --[[ table (indexed by player names) containing tables containing the active HUD IDs for players
 	Example: { ["Player 1"] = {1,2,3}, ["Player 2"] = {2}, ["Player 3"] = {} }
 ]]
@@ -62,7 +66,6 @@ function playereffects.apply_effect_type(effect_type_id, duration, player)
 	playereffects.effect_types[effect_type_id].apply(player)
 	minetest.log("action", "Effect type "..effect_type_id.." applied to player "..playername.."!")
 	minetest.after(duration, function(effect_id) playereffects.cancel_effect(effect_id) end, effect_id)
-
 end
 
 -- TODO
@@ -93,8 +96,8 @@ function playereffects.cancel_effect(effect_id)
 		player:hud_remove(effect.hudid)
 		playereffects.effect_types[effect.effect_type_id].cancel(effect)
 		playereffects.effects[effect_id] = nil
+		minetest.log("action", "Effect type "..effect.effect_type_id.." cancelled from player "..effect.playername.."!")
 	end
-	minetest.log("action", "Effect type "..effect.effect_type_id.." cancelled from player "..effect.playername.."!")
 end
 
 function playereffects.get_player_effects(playername)
@@ -120,16 +123,47 @@ minetest.register_on_dieplayer(function(player)
 	end
 end)
 
---[[
+
 minetest.register_on_leaveplayer(function(player)
+	local leave_time = os.time()
+	local playername = player:get_player_name()
+	local effects = playereffects.get_player_effects(playername)
+
 	playereffects.hud_clear(player)
-	playereffects.hudids[player:get_player_name()] = nil
+	playereffects.hudids[playername] = nil
+
+	if(playereffects.inactive_effects[playername] == nil) then
+		playereffects.inactive_effects[playername] = {}
+	end
+	for e=1,#effects do
+		local start_time = effects[e].start_time
+		local new_duration = os.difftime(leave_time, start_time)
+		local new_effect = effects[e]
+		new_effect.time_left = new_duration
+		table.insert(playereffects.inactive_effects[playername], new_effect)
+		playereffects.cancel_effect(effects[e].effect_id)
+	end
 end)
+
 
 minetest.register_on_joinplayer(function(player)
-	playereffects.hud_update(player)
+	local playername = player:get_player_name()
+
+	-- load all the effects again (if any)
+	if(playereffects.inactive_effects[playername] ~= nil) then
+		for i=1,#playereffects.inactive_effects[playername] do
+			local effect = playereffects.inactive_effects[playername][i]
+--			minetest.after(0, function(effect, player)
+--				playereffects.apply_effect_type(effect.effect_type_id, effect.time_left, player) end,
+--			effect, player)
+			playereffects.apply_effect_type(effect.effect_type_id, effect.time_left, player)
+		end
+		playereffects.inactive_effects[playername] = nil
+	end
+
 end)
 
+--[[
 minetest.register_on_shutdown(function()
 	
 end)
@@ -215,10 +249,10 @@ minetest.register_chatcommand("fast", {
 })
 minetest.register_chatcommand("slow", {
 	params = "",
-	description = "Makes you slow for a short time.",
+	description = "Makes you slow for a long time.",
 	privs = {},
 	func = function(name, param)
-		playereffects.apply_effect_type("low_speed", 10, minetest.get_player_by_name(name))
+		playereffects.apply_effect_type("low_speed", 120, minetest.get_player_by_name(name))
 	end,
 })
 minetest.register_chatcommand("highjump", {
