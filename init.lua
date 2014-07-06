@@ -51,14 +51,39 @@ function playereffects.apply_effect_type(effect_type_id, duration, player)
 		playereffects.cancel_effect_group(v, playername)
 	end
 	local effect_id = playereffects.next_effect_id()
-	local hudid = playereffects.hud_effect(effect_type_id, player, #playereffects.get_player_effects(playername))
+--	local hudpos = #playereffects.get_player_effects(playername)
+	local effects = playereffects.get_player_effects(playername)
+	local smallest_hudpos
+	local biggest_hudpos = -1
+	local free_hudpos
+	for e=1,#effects do
+		local hudpos = effects[e].hudpos
+		if(hudpos > biggest_hudpos) then
+			biggest_hudpos = hudpos
+		end
+		if(smallest_hudpos == nil) then
+			smallest_hudpos = hudpos
+		elseif(hudids[h] < smallest_hudpos) then
+			smallest_hudpos = hudpos
+		end
+	end
+	if(smallest_hudpos == nil) then
+		free_hudpos = 0
+	elseif(smallest_hudpos >= 0) then
+		free_hudpos = smallest_hudpos - 1
+	else
+		free_hudpos = biggest_hudpos + 1
+	end
+	local hudid = playereffects.hud_effect(effect_type_id, player, free_hudpos)
+
 	local effect = {
 			playername = playername, 
 			effect_id = effect_id,
 			effect_type_id = effect_type_id,
 			start_time = start_time,
 			time_left = duration,
-			hudid = hudid
+			hudid = hudid,
+			hudpos = free_hudpos,
 			}
 
 	playereffects.effects[effect_id] = effect
@@ -164,6 +189,13 @@ function playereffects.join0(player)
 
 end
 
+minetest.register_globalstep(function()
+	local players = minetest.get_connected_players()
+	for p=1,#players do
+		playereffects.hud_update(players[p])
+	end
+end)
+
 --[[
 minetest.register_on_shutdown(function()
 	
@@ -172,10 +204,20 @@ end)
 
 --[=[ HUD ]=]
 function playereffects.hud_update(player)
+--[[
 	playereffects.hud_clear(player)
 	local effects = playereffects.get_player_effects(player:get_player_name())
 	for e=1,#effects do
-		playereffects.hud_effect(effects[e], player, e-1)
+		playereffects.hud_effect(effects[e].effect_type_id, player, effects[e].hudpos)
+	end
+]]
+	local now = os.time()
+	local effects = playereffects.get_player_effects(player:get_player_name())
+	for e=1,#effects do
+		local effect = effects[e]
+		local description = playereffects.effect_types[effect.effect_type_id].description
+		local time_left = os.difftime(effect.start_time + effect.time_left, now)
+		player:hud_change(effect.hudid, "text", description .. " ("..tostring(time_left).." s)")
 	end
 end
 
@@ -183,8 +225,8 @@ function playereffects.hud_clear(player)
 	local playername = player:get_player_name()
 	local effects = playereffects.get_player_effects(playername)
 	if(effects ~= nil) then
-		for i=1,#effects do
-			player:hud_remove(effects[i].hudid)
+		for e=1,#effects do
+			player:hud_remove(effects[e].hudid)
 		end
 	end
 end
@@ -193,14 +235,14 @@ function playereffects.hud_effect(effect_type_id, player, pos)
 	local id
 	id = player:hud_add({
 		hud_elem_type = "text",
-		position = { x = 0.95, y = 0.3 },
+		position = { x = 1, y = 0.3 },
 		name = "effect_"..effect_type_id,
 		text = playereffects.effect_types[effect_type_id].description,
-		scale = { x = 20, y = 100},
+		scale = { x = 120, y = 20},
 		alignment = 1,
 		direction = 1,
 		number = 0xFFFFFF,
-		offset = { x = 0, y = pos*20 } 
+		offset = { x = -120, y = pos*20 } 
 	})
 	local playername = player:get_player_name()
 	return id
