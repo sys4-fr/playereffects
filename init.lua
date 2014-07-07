@@ -45,11 +45,12 @@ function playereffects.next_effect_id()
 end
 
 --[=[ API functions ]=]
-function playereffects.register_effect_type(name, description, groups, apply, cancel)
+function playereffects.register_effect_type(name, description, icon, groups, apply, cancel)
 	effect_type = {}
 	effect_type.description = description
 	effect_type.apply = apply
 	effect_type.groups = groups
+	effect_type.icon = icon
 	if cancel ~= nil then
 		effect_type.cancel = cancel
 	else
@@ -89,7 +90,7 @@ function playereffects.apply_effect_type(effect_type_id, duration, player)
 	else
 		free_hudpos = biggest_hudpos + 1
 	end
-	local hudid = playereffects.hud_effect(effect_type_id, player, free_hudpos, duration)
+	local hudids = playereffects.hud_effect(effect_type_id, player, free_hudpos, duration)
 
 	local effect = {
 			playername = playername, 
@@ -97,7 +98,7 @@ function playereffects.apply_effect_type(effect_type_id, duration, player)
 			effect_type_id = effect_type_id,
 			start_time = start_time,
 			time_left = duration,
-			hudid = hudid,
+			hudids = hudids,
 			hudpos = free_hudpos,
 			}
 
@@ -133,7 +134,10 @@ function playereffects.cancel_effect(effect_id)
 	local effect = playereffects.effects[effect_id]
 	if(effect ~= nil) then
 		local player = minetest.get_player_by_name(effect.playername)
-		player:hud_remove(effect.hudid)
+		player:hud_remove(effect.hudids.text_id)
+		if(effect.hudids.icon_id~=nil) then
+			player:hud_remove(effect.hudids.icon_id)
+		end
 		playereffects.effect_types[effect.effect_type_id].cancel(effect)
 		playereffects.effects[effect_id] = nil
 		minetest.log("action", "Effect type "..effect.effect_type_id.." cancelled from player "..effect.playername.."!")
@@ -248,7 +252,7 @@ function playereffects.hud_update(player)
 		local effect = effects[e]
 		local description = playereffects.effect_types[effect.effect_type_id].description
 		local time_left = os.difftime(effect.start_time + effect.time_left, now)
-		player:hud_change(effect.hudid, "text", description .. " ("..tostring(time_left).." s)")
+		player:hud_change(effect.hudids.text_id, "text", description .. " ("..tostring(time_left).." s)")
 	end
 end
 
@@ -257,26 +261,40 @@ function playereffects.hud_clear(player)
 	local effects = playereffects.get_player_effects(playername)
 	if(effects ~= nil) then
 		for e=1,#effects do
-			player:hud_remove(effects[e].hudid)
+			player:hud_remove(effects[e].hudids.text_id)
+			if(effects[e].hudids.icon_id ~= nil) then
+				player:hud_remove(effects[e].hudids.icon_id)
+			end
 		end
 	end
 end
 
 function playereffects.hud_effect(effect_type_id, player, pos, time_left)
-	local id
-	id = player:hud_add({
+	local text_id, icon_id
+	text_id = player:hud_add({
 		hud_elem_type = "text",
 		position = { x = 1, y = 0.3 },
 		name = "effect_"..effect_type_id,
 		text = playereffects.effect_types[effect_type_id].description .. " ("..tostring(time_left).." s)",
-		scale = { x = 120, y = 20},
-		alignment = 1,
+		scale = { x = 170, y = 20},
+		alignment = { x = -1, y = 0 },
 		direction = 1,
 		number = 0xFFFFFF,
-		offset = { x = -120, y = pos*20 } 
+		offset = { x = -5, y = pos*20 } 
 	})
-	local playername = player:get_player_name()
-	return id
+	if(playereffects.effect_types[effect_type_id].icon ~= nil) then
+		icon_id = player:hud_add({
+			hud_elem_type = "image",
+			scale = { x = 1, y = 1 },
+			position = { x = 1, y = 0.3 },
+			name = "effect_icon_"..effect_type_id,
+			text = playereffects.effect_types[effect_type_id].icon,
+			alignment = { x = -1, y=0 },
+			direction = 0,
+			offset = { x = -186, y = pos*20 },
+		})
+	end	
+	return { text_id = text_id, icon_id = icon_id }
 end
 
 

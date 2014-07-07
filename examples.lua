@@ -1,6 +1,6 @@
 ----- EXAMPLE EFFECT TYPES -----
 
-playereffects.register_effect_type("high_speed", "high speed", {"speed"}, 
+playereffects.register_effect_type("high_speed", "High speed", nil, {"speed"}, 
 	function(player)
 		player:set_physics_override(4,nil,nil)
 	end,
@@ -10,7 +10,7 @@ playereffects.register_effect_type("high_speed", "high speed", {"speed"},
 		player:set_physics_override(1,nil,nil)
 	end
 )
-playereffects.register_effect_type("low_speed", "low speed", {"speed"}, 
+playereffects.register_effect_type("low_speed", "Low speed", nil, {"speed"}, 
 	function(player)
 		player:set_physics_override(0.25,nil,nil)
 	end,
@@ -20,7 +20,7 @@ playereffects.register_effect_type("low_speed", "low speed", {"speed"},
 		player:set_physics_override(1,nil,nil)
 	end
 )
-playereffects.register_effect_type("highjump", "greater jump height", {"jump"},
+playereffects.register_effect_type("highjump", "Greater jump height", "playereffects_example_highjump.png", {"jump"},
 	function(player)
 		player:set_physics_override(nil,2,nil)
 	end,
@@ -29,7 +29,7 @@ playereffects.register_effect_type("highjump", "greater jump height", {"jump"},
 		player:set_physics_override(nil,1,nil)
 	end
 )
-playereffects.register_effect_type("fly", "fly mode available", {"fly"},
+playereffects.register_effect_type("fly", "Fly mode available", "playereffects_example_fly.png", {"fly"},
 	function(player)
 		local playername = player:get_player_name()
 		local privs = minetest.get_player_privs(playername)
