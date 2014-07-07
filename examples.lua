@@ -42,6 +42,12 @@ playereffects.register_effect_type("fly", "Fly mode available", "playereffects_e
 		minetest.set_player_privs(effect.playername, privs)
 	end
 )
+playereffects.register_effect_type("stress", "Stress Test Effect", nil, {},
+	function(player)
+	end,
+	function(effect)
+	end
+)
 
 
 minetest.register_chatcommand("fast", {
@@ -76,4 +82,23 @@ minetest.register_chatcommand("fly", {
 	func = function(name, param)
 		playereffects.apply_effect_type("fly", 20, minetest.get_player_by_name(name))
 	end,
+})
+minetest.register_chatcommand("stresstest", {
+	params = "[<effects>]",
+	descriptions = "Start the stress test for Player Effects with <effects> effects.",
+	privs = {server=true},
+	func = function(name, param)
+		local player = minetest.get_player_by_name(name)
+		local max = 100
+		if(type(param)=="string") then
+			if(type(tonumber(param)) == "number") then
+				max = tonumber(param)
+				if(max > 1000) then max = 1000 end
+			end
+		end
+		minetest.debug("[playereffects] Stress test started for "..name.." with "..max.." effects.")
+		for i=1,max do
+			playereffects.apply_effect_type("stress", 10, player)
+		end
+	end
 })

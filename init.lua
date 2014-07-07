@@ -234,7 +234,14 @@ minetest.register_on_joinplayer(function(player)
 	end
 end)
 
-minetest.register_globalstep(function()
+playereffects.globalstep_timer = 0
+minetest.register_globalstep(function(dtime)
+	playereffects.globalstep_timer = playereffects.globalstep_timer + dtime
+	if(playereffects.globalstep_timer < 1) then
+		return
+	end
+	playereffects.globalstep_timer = 0
+
 	local players = minetest.get_connected_players()
 	for p=1,#players do
 		playereffects.hud_update(players[p])
