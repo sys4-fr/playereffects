@@ -90,7 +90,13 @@ function playereffects.apply_effect_type(effect_type_id, duration, player)
 	else
 		free_hudpos = biggest_hudpos + 1
 	end
-	local hudids = playereffects.hud_effect(effect_type_id, player, free_hudpos, duration)
+	local hudids
+	--[[ show no more than 20 effects on the screen, so that hud_update does not need to be called so often ]]
+	if(free_hudpos <= 20) then
+		hudids = playereffects.hud_effect(effect_type_id, player, free_hudpos, duration)
+	else
+		hudids = {text_id=nil, icon_id=nil}
+	end
 
 	local effect = {
 			playername = playername, 
@@ -134,7 +140,9 @@ function playereffects.cancel_effect(effect_id)
 	local effect = playereffects.effects[effect_id]
 	if(effect ~= nil) then
 		local player = minetest.get_player_by_name(effect.playername)
-		player:hud_remove(effect.hudids.text_id)
+		if(effect.hudids.text_id~=nil) then
+			player:hud_remove(effect.hudids.text_id)
+		end
 		if(effect.hudids.icon_id~=nil) then
 			player:hud_remove(effect.hudids.icon_id)
 		end
@@ -257,9 +265,11 @@ function playereffects.hud_update(player)
 	local effects = playereffects.get_player_effects(player:get_player_name())
 	for e=1,#effects do
 		local effect = effects[e]
-		local description = playereffects.effect_types[effect.effect_type_id].description
-		local time_left = os.difftime(effect.start_time + effect.time_left, now)
-		player:hud_change(effect.hudids.text_id, "text", description .. " ("..tostring(time_left).." s)")
+		if(effect.hudids.text_id ~= nil) then
+			local description = playereffects.effect_types[effect.effect_type_id].description
+			local time_left = os.difftime(effect.start_time + effect.time_left, now)
+			player:hud_change(effect.hudids.text_id, "text", description .. " ("..tostring(time_left).." s)")
+		end
 	end
 end
 
@@ -268,7 +278,9 @@ function playereffects.hud_clear(player)
 	local effects = playereffects.get_player_effects(playername)
 	if(effects ~= nil) then
 		for e=1,#effects do
-			player:hud_remove(effects[e].hudids.text_id)
+			if(effects[e].hudids.text_id ~= nil) then
+				player:hud_remove(effects[e].hudids.text_id)
+			end
 			if(effects[e].hudids.icon_id ~= nil) then
 				player:hud_remove(effects[e].hudids.icon_id)
 			end
