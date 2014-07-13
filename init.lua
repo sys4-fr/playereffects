@@ -115,8 +115,17 @@ function playereffects.apply_effect_type(effect_type_id, duration, player)
 	minetest.after(duration, function(effect_id) playereffects.cancel_effect(effect_id) end, effect_id)
 end
 
--- TODO
-function playereffects.cancel_effect_type(effect_type_id, playername)
+function playereffects.cancel_effect_type(effect_type_id, cancel_all, playername)
+	local effects = playereffects.get_player_effects(playername)
+	if(cancel_all==nil) then all = false end
+	for e=1, #effects do
+		if(effects[e].effect_type_id == effect_type_id) then
+			playereffects.cancel_effect(effects[e].effect_id)
+			if(cancel_all==false) then
+				return
+			end
+		end
+	end
 end
 
 function playereffects.cancel_effect_group(groupname, playername)
