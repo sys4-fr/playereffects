@@ -12,6 +12,21 @@ playereffects.register_effect_type("high_speed", "High speed", nil, {"speed"},
 	end
 )
 
+-- Makes the user faster (hidden effect)
+playereffects.register_effect_type("high_speed_hidden", "High speed", nil, {"speed"}, 
+	function(player)
+		player:set_physics_override(4,nil,nil)
+	end,
+	
+	function(effect)
+		local player = minetest.get_player_by_name(effect.playername)
+		player:set_physics_override(1,nil,nil)
+	end,
+	true
+)
+
+
+
 -- Slows the user down
 playereffects.register_effect_type("low_speed", "Low speed", nil, {"speed"}, 
 	function(player)
@@ -67,6 +82,14 @@ minetest.register_chatcommand("fast", {
 	privs = {},
 	func = function(name, param)
 		playereffects.apply_effect_type("high_speed", 10, minetest.get_player_by_name(name))
+	end,
+})
+minetest.register_chatcommand("hfast", {
+	params = "",
+	description = "Makes you fast for a short time (hidden effect).",
+	privs = {},
+	func = function(name, param)
+		playereffects.apply_effect_type("high_speed_hidden", 10, minetest.get_player_by_name(name))
 	end,
 })
 minetest.register_chatcommand("slow", {

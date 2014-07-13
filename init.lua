@@ -48,7 +48,7 @@ function playereffects.next_effect_id()
 end
 
 --[=[ API functions ]=]
-function playereffects.register_effect_type(name, description, icon, groups, apply, cancel)
+function playereffects.register_effect_type(name, description, icon, groups, apply, cancel, hidden)
 	effect_type = {}
 	effect_type.description = description
 	effect_type.apply = apply
@@ -58,6 +58,11 @@ function playereffects.register_effect_type(name, description, icon, groups, app
 		effect_type.cancel = cancel
 	else
 		effect_type.cancel = function() end
+	end
+	if hidden ~= nil then
+		effect_type.hidden = hidden
+	else
+		effect_type.hidden = false
 	end
 	playereffects.effect_types[name] = effect_type
 	minetest.log("action", "Effect type "..name.." registered!")
@@ -306,7 +311,8 @@ end
 
 function playereffects.hud_effect(effect_type_id, player, pos, time_left)
 	local text_id, icon_id
-	if(playereffects.use_hud == true) then
+	local effect_type = playereffects.effect_types[effect_type_id]
+	if(playereffects.use_hud == true and effect_type.hidden == false) then
 		text_id = player:hud_add({
 			hud_elem_type = "text",
 			position = { x = 1, y = 0.3 },
