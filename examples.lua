@@ -1,5 +1,6 @@
 ----- EXAMPLE EFFECT TYPES -----
 
+-- Makes the user faster
 playereffects.register_effect_type("high_speed", "High speed", nil, {"speed"}, 
 	function(player)
 		player:set_physics_override(4,nil,nil)
@@ -10,6 +11,8 @@ playereffects.register_effect_type("high_speed", "High speed", nil, {"speed"},
 		player:set_physics_override(1,nil,nil)
 	end
 )
+
+-- Slows the user down
 playereffects.register_effect_type("low_speed", "Low speed", nil, {"speed"}, 
 	function(player)
 		player:set_physics_override(0.25,nil,nil)
@@ -20,6 +23,8 @@ playereffects.register_effect_type("low_speed", "Low speed", nil, {"speed"},
 		player:set_physics_override(1,nil,nil)
 	end
 )
+
+-- Increases the jump height
 playereffects.register_effect_type("highjump", "Greater jump height", "playereffects_example_highjump.png", {"jump"},
 	function(player)
 		player:set_physics_override(nil,2,nil)
@@ -29,6 +34,8 @@ playereffects.register_effect_type("highjump", "Greater jump height", "playereff
 		player:set_physics_override(nil,1,nil)
 	end
 )
+
+-- Adds the “fly” privilege
 playereffects.register_effect_type("fly", "Fly mode available", "playereffects_example_fly.png", {"fly"},
 	function(player)
 		local playername = player:get_player_name()
@@ -42,6 +49,8 @@ playereffects.register_effect_type("fly", "Fly mode available", "playereffects_e
 		minetest.set_player_privs(effect.playername, privs)
 	end
 )
+
+-- Dummy effect for the stree test
 playereffects.register_effect_type("stress", "Stress Test Effect", nil, {},
 	function(player)
 	end,
@@ -49,6 +58,8 @@ playereffects.register_effect_type("stress", "Stress Test Effect", nil, {},
 	end
 )
 
+
+------ Chat commands for the example effects ------
 
 minetest.register_chatcommand("fast", {
 	params = "",
@@ -83,6 +94,9 @@ minetest.register_chatcommand("fly", {
 		playereffects.apply_effect_type("fly", 20, minetest.get_player_by_name(name))
 	end,
 })
+
+--[[ The stress test applies a shitload of effects at once.
+This is used to test the performance of this mod at very large effect numbers. ]]
 minetest.register_chatcommand("stresstest", {
 	params = "[<effects>]",
 	descriptions = "Start the stress test for Player Effects with <effects> effects.",
