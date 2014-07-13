@@ -65,7 +65,7 @@ function playereffects.register_effect_type(name, description, icon, groups, app
 		effect_type.hidden = false
 	end
 	playereffects.effect_types[name] = effect_type
-	minetest.log("action", "Effect type "..name.." registered!")
+	minetest.log("action", "[playereffects] Effect type "..name.." registered!")
 end
 
 function playereffects.apply_effect_type(effect_type_id, duration, player)
@@ -119,7 +119,7 @@ function playereffects.apply_effect_type(effect_type_id, duration, player)
 	playereffects.effects[effect_id] = effect
 		
 	playereffects.effect_types[effect_type_id].apply(player)
-	minetest.log("action", "Effect type "..effect_type_id.." applied to player "..playername.."!")
+	minetest.log("action", "[playereffects] Effect type "..effect_type_id.." applied to player "..playername.."!")
 	minetest.after(duration, function(effect_id) playereffects.cancel_effect(effect_id) end, effect_id)
 end
 
@@ -141,8 +141,6 @@ function playereffects.cancel_effect_group(groupname, playername)
 	for e=1,#effects do
 		local effect = effects[e]
 		local thesegroups = playereffects.effect_types[effect.effect_type_id].groups
-		minetest.log("action", "thesegroups = "..dump(thesegroups))
-		minetest.log("action", "groupname = "..dump(groupname))
 		local delete = false
 		for g=1,#thesegroups do
 			if(thesegroups[g] == groupname) then
@@ -165,7 +163,7 @@ function playereffects.cancel_effect(effect_id)
 		end
 		playereffects.effect_types[effect.effect_type_id].cancel(effect)
 		playereffects.effects[effect_id] = nil
-		minetest.log("action", "Effect type "..effect.effect_type_id.." cancelled from player "..effect.playername.."!")
+		minetest.log("action", "[playereffects] Effect type "..effect.effect_type_id.." cancelled from player "..effect.playername.."!")
 	end
 end
 
