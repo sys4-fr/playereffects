@@ -18,6 +18,9 @@ playereffects.inactive_effects = {}
 -- Variable for counting the effect_id
 playereffects.last_effect_id = 0
 
+--[=[ Include settings ]=]
+dofile(minetest.get_modpath("playereffects").."/settings.lua")
+
 --[=[ Load inactive_effects and last_effect_id from playereffects.mt, if this file exists  ]=]
 do
 	local filepath = minetest.get_worldpath().."/playereffects.mt"
@@ -270,28 +273,32 @@ end)
 
 --[=[ HUD ]=]
 function playereffects.hud_update(player)
-	local now = os.time()
-	local effects = playereffects.get_player_effects(player:get_player_name())
-	for e=1,#effects do
-		local effect = effects[e]
-		if(effect.hudids.text_id ~= nil) then
-			local description = playereffects.effect_types[effect.effect_type_id].description
-			local time_left = os.difftime(effect.start_time + effect.time_left, now)
-			player:hud_change(effect.hudids.text_id, "text", description .. " ("..tostring(time_left).." s)")
+	if(playereffects.use_hud == true) then
+		local now = os.time()
+		local effects = playereffects.get_player_effects(player:get_player_name())
+		for e=1,#effects do
+			local effect = effects[e]
+			if(effect.hudids.text_id ~= nil) then
+				local description = playereffects.effect_types[effect.effect_type_id].description
+				local time_left = os.difftime(effect.start_time + effect.time_left, now)
+				player:hud_change(effect.hudids.text_id, "text", description .. " ("..tostring(time_left).." s)")
+			end
 		end
 	end
 end
 
 function playereffects.hud_clear(player)
-	local playername = player:get_player_name()
-	local effects = playereffects.get_player_effects(playername)
-	if(effects ~= nil) then
-		for e=1,#effects do
-			if(effects[e].hudids.text_id ~= nil) then
-				player:hud_remove(effects[e].hudids.text_id)
-			end
-			if(effects[e].hudids.icon_id ~= nil) then
-				player:hud_remove(effects[e].hudids.icon_id)
+	if(playereffects.use_hud == true) then
+		local playername = player:get_player_name()
+		local effects = playereffects.get_player_effects(playername)
+		if(effects ~= nil) then
+			for e=1,#effects do
+				if(effects[e].hudids.text_id ~= nil) then
+					player:hud_remove(effects[e].hudids.text_id)
+				end
+				if(effects[e].hudids.icon_id ~= nil) then
+					player:hud_remove(effects[e].hudids.icon_id)
+				end
 			end
 		end
 	end
@@ -299,29 +306,34 @@ end
 
 function playereffects.hud_effect(effect_type_id, player, pos, time_left)
 	local text_id, icon_id
-	text_id = player:hud_add({
-		hud_elem_type = "text",
-		position = { x = 1, y = 0.3 },
-		name = "effect_"..effect_type_id,
-		text = playereffects.effect_types[effect_type_id].description .. " ("..tostring(time_left).." s)",
-		scale = { x = 170, y = 20},
-		alignment = { x = -1, y = 0 },
-		direction = 1,
-		number = 0xFFFFFF,
-		offset = { x = -5, y = pos*20 } 
-	})
-	if(playereffects.effect_types[effect_type_id].icon ~= nil) then
-		icon_id = player:hud_add({
-			hud_elem_type = "image",
-			scale = { x = 1, y = 1 },
+	if(playereffects.use_hud == true) then
+		text_id = player:hud_add({
+			hud_elem_type = "text",
 			position = { x = 1, y = 0.3 },
-			name = "effect_icon_"..effect_type_id,
-			text = playereffects.effect_types[effect_type_id].icon,
-			alignment = { x = -1, y=0 },
-			direction = 0,
-			offset = { x = -186, y = pos*20 },
+			name = "effect_"..effect_type_id,
+			text = playereffects.effect_types[effect_type_id].description .. " ("..tostring(time_left).." s)",
+			scale = { x = 170, y = 20},
+			alignment = { x = -1, y = 0 },
+			direction = 1,
+			number = 0xFFFFFF,
+			offset = { x = -5, y = pos*20 } 
 		})
-	end	
+		if(playereffects.effect_types[effect_type_id].icon ~= nil) then
+			icon_id = player:hud_add({
+				hud_elem_type = "image",
+				scale = { x = 1, y = 1 },
+				position = { x = 1, y = 0.3 },
+				name = "effect_icon_"..effect_type_id,
+				text = playereffects.effect_types[effect_type_id].icon,
+				alignment = { x = -1, y=0 },
+				direction = 0,
+				offset = { x = -186, y = pos*20 },
+			})
+		end	
+	else
+		text_id = nil
+		icon_id = nil
+	end
 	return { text_id = text_id, icon_id = icon_id }
 end
 
