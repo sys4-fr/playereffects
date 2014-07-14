@@ -82,8 +82,13 @@ function playereffects.apply_effect_type(effect_type_id, duration, player)
 		return false
 	end
 
-	local status = playereffects.effect_types[effect_type_id].apply(player)
 	local playername = player:get_player_name()
+	local groups = playereffects.effect_types[effect_type_id].groups
+	for k,v in pairs(groups) do
+		playereffects.cancel_effect_group(v, playername)
+	end
+
+	local status = playereffects.effect_types[effect_type_id].apply(player)
 	local metadata
 
 	if(status == false) then
@@ -93,10 +98,6 @@ function playereffects.apply_effect_type(effect_type_id, duration, player)
 		metadata = status
 	end
 
-	local groups = playereffects.effect_types[effect_type_id].groups
-	for k,v in pairs(groups) do
-		playereffects.cancel_effect_group(v, playername)
-	end
 	local effect_id = playereffects.next_effect_id()
 	local effects = playereffects.get_player_effects(playername)
 	local smallest_hudpos
@@ -141,7 +142,7 @@ function playereffects.apply_effect_type(effect_type_id, duration, player)
 
 	playereffects.effects[effect_id] = effect
 
-	minetest.log("action", "[playereffects] Effect type "..effect_type_id.." applied to player "..playername.."!")
+	minetest.log("action", "[playereffects] Effect type "..effect_type_id.." applied to player "..playername.." (effect_id = "..effect_id..").")
 	minetest.after(duration, function(effect_id) playereffects.cancel_effect(effect_id) end, effect_id)
 
 	return effect_id
