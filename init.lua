@@ -47,7 +47,7 @@ function playereffects.next_effect_id()
 end
 
 --[=[ API functions ]=]
-function playereffects.register_effect_type(name, description, icon, groups, apply, cancel, hidden)
+function playereffects.register_effect_type(effect_type_id, description, icon, groups, apply, cancel, hidden)
 	effect_type = {}
 	effect_type.description = description
 	effect_type.apply = apply
@@ -63,8 +63,8 @@ function playereffects.register_effect_type(name, description, icon, groups, app
 	else
 		effect_type.hidden = false
 	end
-	playereffects.effect_types[name] = effect_type
-	minetest.log("action", "[playereffects] Effect type "..name.." registered!")
+	playereffects.effect_types[effect_type_id] = effect_type
+	minetest.log("action", "[playereffects] Effect type "..effect_type_id.." registered!")
 end
 
 function playereffects.apply_effect_type(effect_type_id, duration, player)

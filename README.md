@@ -85,11 +85,11 @@ You should normally not need to care about these internally used fields.
 
 
 ### Functions
-#### `playereffects.register_effect_type(name, description, icon, groups, apply, cancel, hidden)`
+#### `playereffects.register_effect_type(effect_type_id, description, icon, groups, apply, cancel, hidden)`
 Adds a new effect type for the Player Effects mods, so it can be later be applied to players.
 
 ##### Parameters
-* `name` is the name (a string) which is internally used by the mod. Later known as `effect_type_id`. Please use only alphanumeric ASCII characters.
+* `effect_type_id` is the identifier (a string) which is internally used by the mod. Later known as `effect_type_id`. You may choose the identifier at will, but please use only alphanumeric ASCII characters. The identifier must be unique along all mods.
 * `description` is the text which is exposed to the HUD and visible to the player.
 * `icon`: This is optional an can be `nil`. It can be the file name of a texture. Should have a size of 16px×16px. In this case, this is the icon for the HUD. Basically this is just eye-candy. If this is `nil`, no icon is shown. The icon will be exposed to the HUD, iff `hidden` is `false`.
 * `groups` is a table of strings to which the effect type is assigned to.
