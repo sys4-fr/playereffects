@@ -143,6 +143,8 @@ function playereffects.apply_effect_type(effect_type_id, duration, player)
 
 	minetest.log("action", "[playereffects] Effect type "..effect_type_id.." applied to player "..playername.."!")
 	minetest.after(duration, function(effect_id) playereffects.cancel_effect(effect_id) end, effect_id)
+
+	return effect_id
 end
 
 function playereffects.cancel_effect_type(effect_type_id, cancel_all, playername)
