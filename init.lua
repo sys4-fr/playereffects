@@ -69,13 +69,26 @@ end
 
 function playereffects.apply_effect_type(effect_type_id, duration, player)
 	local start_time = os.time()
+	local is_player = false
+	if(type(player)=="userdata") then
+		if(player.is_player ~= nil) then
+			if(player:is_player() == true) then
+				is_player = true
+			end
+		end
+	end
+	if(is_player == false) then
+		minetest.log("error", "[playereffects] Attempted to apply effect type "..effect_type_id.." to a non-player!")
+		return false
+	end
+
 	local status = playereffects.effect_types[effect_type_id].apply(player)
 	local playername = player:get_player_name()
 	local metadata
 
 	if(status == false) then
 		minetest.log("action", "[playereffects] Attempt to apply effect type "..effect_type_id.." to player "..playername.." failed!")
-		return
+		return false
 	else
 		metadata = status
 	end
