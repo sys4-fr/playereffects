@@ -47,7 +47,7 @@ function playereffects.next_effect_id()
 end
 
 --[=[ API functions ]=]
-function playereffects.register_effect_type(effect_type_id, description, icon, groups, apply, cancel, hidden)
+function playereffects.register_effect_type(effect_type_id, description, icon, groups, apply, cancel, hidden, cancel_on_death)
 	effect_type = {}
 	effect_type.description = description
 	effect_type.apply = apply
@@ -63,6 +63,12 @@ function playereffects.register_effect_type(effect_type_id, description, icon, g
 	else
 		effect_type.hidden = false
 	end
+	if cancel_on_death ~= nil then
+		effect_type.cancel_on_death = cancel_on_death 
+	else
+		effect_type.cancel_on_death = true
+	end
+
 	playereffects.effect_types[effect_type_id] = effect_type
 	minetest.log("action", "[playereffects] Effect type "..effect_type_id.." registered!")
 end
@@ -257,7 +263,9 @@ end
 minetest.register_on_dieplayer(function(player)
 	local effects = playereffects.get_player_effects(player:get_player_name())
 	for e=1,#effects do
-		playereffects.cancel_effect(effects[e].effect_id)
+		if(playereffects.effect_types[effects[e].effect_type_id].cancel_on_death == true) then
+			playereffects.cancel_effect(effects[e].effect_id)
+		end
 	end
 end)
 

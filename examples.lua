@@ -90,7 +90,7 @@ playereffects.register_effect_type("highjump", "Greater jump height", "playereff
 	end
 )
 
--- Adds the “fly” privilege
+-- Adds the “fly” privilege. Keep the privilege even if the player dies
 playereffects.register_effect_type("fly", "Fly mode available", "playereffects_example_fly.png", {"fly"},
 	function(player)
 		local playername = player:get_player_name()
@@ -102,7 +102,9 @@ playereffects.register_effect_type("fly", "Fly mode available", "playereffects_e
 		local privs = minetest.get_player_privs(effect.playername)
 		privs.fly = nil
 		minetest.set_player_privs(effect.playername, privs)
-	end
+	end,
+	false, -- not hidden
+	false  -- do NOT cancel the effect on death
 )
 
 -- Dummy effect for the stree test
@@ -174,10 +176,10 @@ minetest.register_chatcommand("highjump", {
 
 minetest.register_chatcommand("fly", {
 	params = "",
-	description = "Grants you the fly privilege for a short time.",
+	description = "Grants you the fly privilege for a minute. You keep the effect when you die.",
 	privs = {},
 	func = function(name, param)
-		local ret = playereffects.apply_effect_type("fly", 20, minetest.get_player_by_name(name))
+		local ret = playereffects.apply_effect_type("fly", 60, minetest.get_player_by_name(name))
 		notify(name, ret)
 	end,
 })

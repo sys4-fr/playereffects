@@ -52,6 +52,7 @@ An effect type is a description of what is later to be concretely applied as an 
 * `cancel`: Function to be called when effect is cancelled. See `playereffects.register_effect_type`.
 * `icon`: This is optional. It can be the file name of a texture. Should have a size of 16px×16px. Will be exposed to the HUD, iff `hidden` is `false`.
 * `hidden`: Iff this is false, it will not be exposed to the HUD when this effect is active.
+* `cancel_on_death`: Iff this is true, the effect will be cancelled automatically when the player dies.
 
 Normally you don’t need to read or edit fields of this table. Use `playereffects.register_effect_type` to add a new effect type to Player Effects.
 
@@ -85,7 +86,7 @@ You should normally not need to care about these internally used fields.
 
 
 ### Functions
-#### `playereffects.register_effect_type(effect_type_id, description, icon, groups, apply, cancel, hidden)`
+#### `playereffects.register_effect_type(effect_type_id, description, icon, groups, apply, cancel, hidden, cancel_on_death)`
 Adds a new effect type for the Player Effects mods, so it can be later be applied to players.
 
 ##### Parameters
@@ -95,7 +96,9 @@ Adds a new effect type for the Player Effects mods, so it can be later be applie
 * `groups` is a table of strings to which the effect type is assigned to.
 * `apply` is a function which takes a player object. It is the player object to which the effect is applied to. This function isused by the framework to start the effect; it should only contain the gameplay-relevant stuff, the framework does the rest for you.
 * `cancel` is a function which takes an effect table. It is the effect which is to be cancelled. This function is called by the framework when the effect expires or is explicitly cancelled by other means..
-* `hidden` is an optional boolean value. Idf true, the effect description and icon will not be exposed to the player HUD. Otherwise, the effect is exposed.
+* `hidden` is an optional boolean value. Iff `true`, the effect description and icon will not be exposed to the player HUD. Otherwise, the effect is exposed. Default: `false`
+* `cancel_on_death` is an optional boolean value. Iff true, the effect will be cancelled automatically when the player dies. Default: `true`.
+
 
 ###### `apply` function
 The `apply` function is a callback function which is called by Player Effects. Here the modder can put all the gameplay-relevant code.
@@ -187,7 +190,7 @@ These commands apply (or try to) apply an effect to you. You will get a response
 * `slow`: Makes you slower for 120s.
 * `hfast`: Makes you faster for 10s. This is a hidden effect and is not exposed to the HUD.
 * `highjump`: Increases your jump height for 20s.
-* `fly`: Gives you the `fly` privilege for a short time. Better don’t mess around with this privilege manually when you use this.
+* `fly`: Gives you the `fly` privilege for a minute. You keep the privilege even when you die. Better don’t mess around with this privilege manually when you use this.
 * `blind`: Tints the whole screen black for 5 seconds. This is highly experimental and will be drawn over many existing HUD elements. In other words, prepare your HUD to be messed up.
 * `null`: Tries to apply an effect which always fails. This demonstrates the failure of effects.
 
