@@ -1,4 +1,20 @@
 ----- EXAMPLE EFFECT TYPES -----
+-- Makes the player screen black for 5 seconds (very experimental!)
+playereffects.register_effect_type("blind", "Blind", nil, {},
+	function(player)
+		local hudid = player:hud_add({
+			hud_elem_type = "image",
+			position = { x=0.5, y=0.5 },
+			scale = { x=-100, y=-100 },
+			text = "playereffects_example_black.png",
+		})
+		return { hudid = hudid }
+	end,
+	function(effect)
+		local player = minetest.get_player_by_name(effect.playername)
+		player:hud_remove(effect.metadata.hudid)
+	end
+)
 
 -- Makes the user faster
 playereffects.register_effect_type("high_speed", "High speed", nil, {"speed"}, 
@@ -75,7 +91,14 @@ playereffects.register_effect_type("stress", "Stress Test Effect", nil, {},
 
 
 ------ Chat commands for the example effects ------
-
+minetest.register_chatcommand("blind", {
+	params = "",
+	description = "Makes your screen black for a short time.",
+	privs = {},
+	func = function(name, param)
+		playereffects.apply_effect_type("blind", 5, minetest.get_player_by_name(name))
+	end,
+})
 minetest.register_chatcommand("fast", {
 	params = "",
 	description = "Makes you fast for a short time.",

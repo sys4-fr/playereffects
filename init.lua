@@ -105,6 +105,8 @@ function playereffects.apply_effect_type(effect_type_id, duration, player)
 		hudids = {text_id=nil, icon_id=nil}
 	end
 
+	local metadata = playereffects.effect_types[effect_type_id].apply(player)
+
 	local effect = {
 			playername = playername, 
 			effect_id = effect_id,
@@ -113,11 +115,11 @@ function playereffects.apply_effect_type(effect_type_id, duration, player)
 			time_left = duration,
 			hudids = hudids,
 			hudpos = free_hudpos,
-			}
+			metadata = metadata,
+	}
 
 	playereffects.effects[effect_id] = effect
-		
-	playereffects.effect_types[effect_type_id].apply(player)
+
 	minetest.log("action", "[playereffects] Effect type "..effect_type_id.." applied to player "..playername.."!")
 	minetest.after(duration, function(effect_id) playereffects.cancel_effect(effect_id) end, effect_id)
 end
@@ -202,6 +204,7 @@ function playereffects.save_to_file()
 			time_left = new_duration,
 			start_time = effect.start_time,
 			playername = effect.playername,
+			metadata = effect.metadata
 		}
 		if(inactive_effects[effect.playername] == nil) then
 			inactive_effects[effect.playername] = {}
