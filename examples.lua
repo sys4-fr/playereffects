@@ -1,4 +1,13 @@
 ----- EXAMPLE EFFECT TYPES -----
+--[[ Null effect. The apply function always returns false, which means applying the
+effect will never succeed ]]
+playereffects.register_effect_type("null", "No effect", nil, {},
+	function()
+		return false
+	end
+)
+
+
 -- Makes the player screen black for 5 seconds (very experimental!)
 playereffects.register_effect_type("blind", "Blind", nil, {},
 	function(player)
@@ -8,7 +17,12 @@ playereffects.register_effect_type("blind", "Blind", nil, {},
 			scale = { x=-100, y=-100 },
 			text = "playereffects_example_black.png",
 		})
-		return { hudid = hudid }
+		if(hudid ~= nil) then
+			return { hudid = hudid }
+		else
+			minetest.log("error", "[playereffects] [examples] The effect \"Blind\" could not be applied. The call to hud_add(...) failed.")
+			return false
+		end
 	end,
 	function(effect)
 		local player = minetest.get_player_by_name(effect.playername)
@@ -91,6 +105,16 @@ playereffects.register_effect_type("stress", "Stress Test Effect", nil, {},
 
 
 ------ Chat commands for the example effects ------
+-- Null effect (never succeeds)
+minetest.register_chatcommand("null", {
+	params = "",
+	description = "Does nothing.",
+	privs = {},
+	func = function(name, param)
+		playereffects.apply_effect_type("null", 5, minetest.get_player_by_name(name))
+	end,
+})
+
 minetest.register_chatcommand("blind", {
 	params = "",
 	description = "Makes your screen black for a short time.",

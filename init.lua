@@ -69,7 +69,17 @@ end
 
 function playereffects.apply_effect_type(effect_type_id, duration, player)
 	local start_time = os.time()
+	local status = playereffects.effect_types[effect_type_id].apply(player)
 	local playername = player:get_player_name()
+	local metadata
+
+	if(status == false) then
+		minetest.log("action", "[playereffects] Attempt to apply effect type "..effect_type_id.." to player "..playername.." failed!")
+		return
+	else
+		metadata = status
+	end
+
 	local groups = playereffects.effect_types[effect_type_id].groups
 	for k,v in pairs(groups) do
 		playereffects.cancel_effect_group(v, playername)
@@ -104,8 +114,6 @@ function playereffects.apply_effect_type(effect_type_id, duration, player)
 	else
 		hudids = {text_id=nil, icon_id=nil}
 	end
-
-	local metadata = playereffects.effect_types[effect_type_id].apply(player)
 
 	local effect = {
 			playername = playername, 
