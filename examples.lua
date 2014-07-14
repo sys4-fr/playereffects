@@ -165,6 +165,21 @@ minetest.register_chatcommand("fly", {
 	end,
 })
 
+--[[
+	Cancel all active effects
+]]
+minetest.register_chatcommand("cancelall", {
+	params = "",
+	description = "Cancels all your effects.",
+	privs = {},
+	func = function(name, param)
+		local effects = playereffects.get_player_effects(name)
+		for e=1, #effects do
+			playereffects.cancel_effect(effects[e].effect_id)
+		end
+	end,
+})
+
 --[[ The stress test applies a shitload of effects at once.
 This is used to test the performance of this mod at very large effect numbers. ]]
 minetest.register_chatcommand("stresstest", {
