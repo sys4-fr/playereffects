@@ -369,6 +369,12 @@ function playereffects.hud_effect(effect_type_id, player, pos, time_left)
 	local text_id, icon_id
 	local effect_type = playereffects.effect_types[effect_type_id]
 	if(playereffects.use_hud == true and effect_type.hidden == false) then
+		local color
+		if(playereffects.effect_types[effect_type_id].cancel_on_death == true) then
+			color = 0xFFFFFF
+		else
+			color = 0xF0BAFF
+		end
 		text_id = player:hud_add({
 			hud_elem_type = "text",
 			position = { x = 1, y = 0.3 },
@@ -377,7 +383,7 @@ function playereffects.hud_effect(effect_type_id, player, pos, time_left)
 			scale = { x = 170, y = 20},
 			alignment = { x = -1, y = 0 },
 			direction = 1,
-			number = 0xFFFFFF,
+			number = color,
 			offset = { x = -5, y = pos*20 } 
 		})
 		if(playereffects.effect_types[effect_type_id].icon ~= nil) then
