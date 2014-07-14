@@ -1,4 +1,14 @@
 ----- EXAMPLE EFFECT TYPES -----
+--[[ This is just a helper function to inform the user of the chat command
+of the result and, if successful, shows the effect ID. ]]
+local function notify(name, retcode)
+	if(retcode == false) then
+		minetest.chat_send_player(name, "Effect application failed. Effect was NOT applied.")
+	else
+		minetest.chat_send_player(name, "Effect applied. Effect ID: "..tostring(retcode))
+	end
+end
+
 --[[ Null effect. The apply function always returns false, which means applying the
 effect will never succeed ]]
 playereffects.register_effect_type("null", "No effect", nil, {},
@@ -111,7 +121,8 @@ minetest.register_chatcommand("null", {
 	description = "Does nothing.",
 	privs = {},
 	func = function(name, param)
-		playereffects.apply_effect_type("null", 5, minetest.get_player_by_name(name))
+		local ret = playereffects.apply_effect_type("null", 5, minetest.get_player_by_name(name))
+		notify(name, ret)
 	end,
 })
 
@@ -120,7 +131,8 @@ minetest.register_chatcommand("blind", {
 	description = "Makes your screen black for a short time.",
 	privs = {},
 	func = function(name, param)
-		playereffects.apply_effect_type("blind", 5, minetest.get_player_by_name(name))
+		local ret = playereffects.apply_effect_type("blind", 5, minetest.get_player_by_name(name))
+		notify(name, ret)
 	end,
 })
 minetest.register_chatcommand("fast", {
@@ -128,7 +140,8 @@ minetest.register_chatcommand("fast", {
 	description = "Makes you fast for a short time.",
 	privs = {},
 	func = function(name, param)
-		playereffects.apply_effect_type("high_speed", 10, minetest.get_player_by_name(name))
+		local ret = playereffects.apply_effect_type("high_speed", 10, minetest.get_player_by_name(name))
+		notify(name, ret)
 	end,
 })
 minetest.register_chatcommand("hfast", {
@@ -136,7 +149,8 @@ minetest.register_chatcommand("hfast", {
 	description = "Makes you fast for a short time (hidden effect).",
 	privs = {},
 	func = function(name, param)
-		playereffects.apply_effect_type("high_speed_hidden", 10, minetest.get_player_by_name(name))
+		local ret = playereffects.apply_effect_type("high_speed_hidden", 10, minetest.get_player_by_name(name))
+		notify(name, ret)
 	end,
 })
 minetest.register_chatcommand("slow", {
@@ -144,7 +158,8 @@ minetest.register_chatcommand("slow", {
 	description = "Makes you slow for a long time.",
 	privs = {},
 	func = function(name, param)
-		playereffects.apply_effect_type("low_speed", 120, minetest.get_player_by_name(name))
+		local ret = playereffects.apply_effect_type("low_speed", 120, minetest.get_player_by_name(name))
+		notify(name, ret)
 	end,
 })
 minetest.register_chatcommand("highjump", {
@@ -152,7 +167,8 @@ minetest.register_chatcommand("highjump", {
 	description = "Makes you jump higher for a short time.",
 	privs = {},
 	func = function(name, param)
-		playereffects.apply_effect_type("highjump", 20, minetest.get_player_by_name(name))
+		local ret = playereffects.apply_effect_type("highjump", 20, minetest.get_player_by_name(name))
+		notify(name, ret)
 	end,
 })
 
@@ -161,7 +177,8 @@ minetest.register_chatcommand("fly", {
 	description = "Grants you the fly privilege for a short time.",
 	privs = {},
 	func = function(name, param)
-		playereffects.apply_effect_type("fly", 20, minetest.get_player_by_name(name))
+		local ret = playereffects.apply_effect_type("fly", 20, minetest.get_player_by_name(name))
+		notify(name, ret)
 	end,
 })
 
@@ -177,6 +194,7 @@ minetest.register_chatcommand("cancelall", {
 		for e=1, #effects do
 			playereffects.cancel_effect(effects[e].effect_id)
 		end
+		minetest.chat_send_player(name, "All effects cancelled.")
 	end,
 })
 
