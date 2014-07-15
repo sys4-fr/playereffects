@@ -39,6 +39,10 @@ A status effect is an effect for a player which changes some property of the pla
 
 The framework aims to provide means to define effect types and to apply and cancel effects to players. The framework aims to be a stable foundation stone. This means it needs a lot of testing.
 
+## Known bugs
+### Effect timers don’t stop when game gets paused
+When you paused the game in singleplayer mode, the effect timers just continue as if nothing happened. Of course, all effect timers should be stopped while the game is paused, like everything else. Apparently this bug cannot be fixed with the current Lua API.
+
 ## API documentation
 ### Data types
 #### Effect type (`effect_type`)
