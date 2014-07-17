@@ -170,6 +170,24 @@ Careful! This function has *not* been tested yet!
 ##### Return value
 Always `nil`.
 
+#### `playereffects.get_remaining_effect_time(effect_id)`
+Returns the remaining time of an effect.
+
+##### Parameter
+* `effect_id`: The effect identifier of the effect in question
+
+##### Return value
+Iff the effect exists, the remaining effect time is returned in full seconds. Iff the effect does not exist, `nil` is returned.
+
+#### `playereffects.get_passed_effect_time(effect_id)`
+Returns the time an effect was in place.
+
+##### Parameter
+* `effect_id`: The effect identifier of the effect in question
+
+##### Return value
+Iff the effect exists, the number of seconds the effect is in place is returned. Iff the effect does not exist, `nil` is returned.
+
 #### `playereffects.get_player_effects(playername)`
 Returns all active effects of a player.
 

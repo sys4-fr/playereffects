@@ -199,6 +199,26 @@ function playereffects.cancel_effect_group(groupname, playername)
 	end
 end
 
+function playereffects.get_remaining_effect_time(effect_id)
+	local now = os.time()
+	local effect = playereffects.effects[effect_id]
+	if(effect ~= nil) then
+		return (effect.time_left - os.difftime(now, effect.start_time))
+	else
+		return nil
+	end
+end
+
+function playereffects.get_passed_effect_time(effect_id)
+	local now = os.time()
+	local effect = playereffects.effects[effect_id]
+	if(effect ~= nil) then
+		return os.difftime(now, effect.start_time)
+	else
+		return nil
+	end
+end
+
 function playereffects.cancel_effect(effect_id)
 	local effect = playereffects.effects[effect_id]
 	if(effect ~= nil) then
