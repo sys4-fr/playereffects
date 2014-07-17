@@ -115,7 +115,6 @@ function playereffects.apply_effect_type(effect_type_id, duration, player)
 	end
 
 	local effect_id = playereffects.next_effect_id()
-	local effects = playereffects.get_player_effects(playername)
 	local smallest_hudpos
 	local biggest_hudpos = -1
 	local free_hudpos
