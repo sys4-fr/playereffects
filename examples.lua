@@ -211,7 +211,7 @@ minetest.register_chatcommand("stresstest", {
 		end
 		minetest.debug("[playereffects] Stress test started for "..name.." with "..max.." effects.")
 		for i=1,max do
-			minetest.after(0.1,function(player) playereffects.apply_effect_type("stress", 10, player) end, player)
+			playereffects.apply_effect_type("stress", 10, player)
 			if(i%100==0) then
 				minetest.debug("[playereffects] Effect "..i.." of "..max.." applied.")
 				minetest.chat_send_player(name, "[playereffects] Effect "..i.." of "..max.." applied.")
