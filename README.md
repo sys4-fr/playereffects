@@ -83,8 +83,6 @@ Internally, Player Effects also uses these fields:
 
 * `start_time`: The operating system time (from `os.time()`) of when the effect has been started.
 * `time_left`: The number of seconds left before the effect runs out. This number is only set when the effect starts or the effect is unfrozen because i.e. a player re-joins. You can’t use this field to blindly get the remaining time of the effect.
-* `hudids`: A table of HUD IDs which belong to this effect. The fields are: `icon_id` for the HUD ID of the icon and `text_id` for the HUD ID of the description text.
-* `hudpos`: The Y offset factor of the effect text and the icon.
 
 You should normally not need to care about these internally used fields.
 
