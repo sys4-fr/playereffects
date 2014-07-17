@@ -207,7 +207,6 @@ minetest.register_chatcommand("stresstest", {
 		if(type(param)=="string") then
 			if(type(tonumber(param)) == "number") then
 				max = tonumber(param)
-				if(max > 1000) then max = 1000 end
 			end
 		end
 		minetest.debug("[playereffects] Stress test started for "..name.." with "..max.." effects.")
