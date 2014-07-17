@@ -225,7 +225,7 @@ function playereffects.cancel_effect(effect_id)
 		end
 		playereffects.effect_types[effect.effect_type_id].cancel(effect, player)
 		playereffects.effects[effect_id] = nil
-		minetest.log("action", "[playereffects] Effect type "..effect.effect_type_id.." cancelled from player "..effect.playername.."!")
+--		minetest.log("action", "[playereffects] Effect type "..effect.effect_type_id.." cancelled from player "..effect.playername.."!")
 	end
 end
 
