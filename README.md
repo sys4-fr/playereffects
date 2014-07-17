@@ -98,8 +98,8 @@ Adds a new effect type for the Player Effects mods, so it can be later be applie
 * `description` is the text which is exposed to the HUD and visible to the player.
 * `icon`: This is optional an can be `nil`. It can be the file name of a texture. Should have a size of 16px×16px. In this case, this is the icon for the HUD. Basically this is just eye-candy. If this is `nil`, no icon is shown. The icon will be exposed to the HUD, iff `hidden` is `false`.
 * `groups` is a table of strings to which the effect type is assigned to.
-* `apply` is a function which takes a player object. It is the player object to which the effect is applied to. This function isused by the framework to start the effect; it should only contain the gameplay-relevant stuff, the framework does the rest for you.
-* `cancel` is a function which takes an effect table. It is the effect which is to be cancelled. This function is called by the framework when the effect expires or is explicitly cancelled by other means..
+* `apply`: See below.
+* `cancel`: See below.
 * `hidden` is an optional boolean value. Iff `true`, the effect description and icon will not be exposed to the player HUD. Otherwise, the effect is exposed. Default: `false`
 * `cancel_on_death` is an optional boolean value. Iff true, the effect will be cancelled automatically when the player dies. Default: `true`.
 
@@ -118,7 +118,7 @@ The function may also return just `nil` on a normal success without metadata.
 ###### `cancel` function
 The `cancel` function is called by Player Effects when the effect is to be cancelled. Here the modder can do all the code which is needed to revert the changes an earlier `apply` call made.
 
-`cancel` takes an `effect` as its only argument. Remember, this `effect` may also contain a field called `metadata`, which may have been added by an earlier `apply` call.
+`cancel` takes an `effect` as its first argument and a player object as its second argument. Remember, this `effect` may also contain a field called `metadata`, which may have been added by an earlier `apply` call. `player` is the player to which the effect is/was applied. This argument is just there for convenience reasons.
 
 Player Effects does not care about the return value of this function.
 

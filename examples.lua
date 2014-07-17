@@ -34,8 +34,7 @@ playereffects.register_effect_type("blind", "Blind", nil, {},
 			return false
 		end
 	end,
-	function(effect)
-		local player = minetest.get_player_by_name(effect.playername)
+	function(effect, player)
 		player:hud_remove(effect.metadata.hudid)
 	end
 )
@@ -46,8 +45,7 @@ playereffects.register_effect_type("high_speed", "High speed", nil, {"speed"},
 		player:set_physics_override(4,nil,nil)
 	end,
 	
-	function(effect)
-		local player = minetest.get_player_by_name(effect.playername)
+	function(effect, player)
 		player:set_physics_override(1,nil,nil)
 	end
 )
@@ -58,8 +56,7 @@ playereffects.register_effect_type("high_speed_hidden", "High speed", nil, {"spe
 		player:set_physics_override(4,nil,nil)
 	end,
 	
-	function(effect)
-		local player = minetest.get_player_by_name(effect.playername)
+	function(effect, player)
 		player:set_physics_override(1,nil,nil)
 	end,
 	true
@@ -73,8 +70,7 @@ playereffects.register_effect_type("low_speed", "Low speed", nil, {"speed"},
 		player:set_physics_override(0.25,nil,nil)
 	end,
 	
-	function(effect)
-		local player = minetest.get_player_by_name(effect.playername)
+	function(effect, player)
 		player:set_physics_override(1,nil,nil)
 	end
 )
@@ -84,8 +80,7 @@ playereffects.register_effect_type("highjump", "Greater jump height", "playereff
 	function(player)
 		player:set_physics_override(nil,2,nil)
 	end,
-	function(effect)
-		local player = minetest.get_player_by_name(effect.playername)
+	function(effect, player)
 		player:set_physics_override(nil,1,nil)
 	end
 )
@@ -98,7 +93,7 @@ playereffects.register_effect_type("fly", "Fly mode available", "playereffects_e
 		privs.fly = true
 		minetest.set_player_privs(playername, privs)
 	end,
-	function(effect)
+	function(effect, player)
 		local privs = minetest.get_player_privs(effect.playername)
 		privs.fly = nil
 		minetest.set_player_privs(effect.playername, privs)
@@ -111,7 +106,7 @@ playereffects.register_effect_type("fly", "Fly mode available", "playereffects_e
 playereffects.register_effect_type("stress", "Stress Test Effect", nil, {},
 	function(player)
 	end,
-	function(effect)
+	function(effect, player)
 	end
 )
 
