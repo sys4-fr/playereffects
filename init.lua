@@ -31,6 +31,20 @@ playereffects.last_effect_id = 0
 --[=[ Include settings ]=]
 dofile(minetest.get_modpath("playereffects").."/settings.lua")
 
+-- defaults
+if(playereffects.use_hud == nil) then
+	playereffects.use_hud = true
+end
+if(playereffects.use_autosave == nil) then
+	playereffects.use_autosave = true
+end
+if(playereffects.autosave_time == nil) then
+	playereffects.autosave_time = 10
+end
+if(playereffects.use_examples == nil) then
+	playereffects.use_examples = false
+end
+
 --[=[ Load inactive_effects and last_effect_id from playereffects.mt, if this file exists  ]=]
 do
 	local filepath = minetest.get_worldpath().."/playereffects.mt"
@@ -443,4 +457,6 @@ end
 
 
 -- LOAD EXAMPLES
-dofile(minetest.get_modpath(minetest.get_current_modname()).."/examples.lua")
+if(playereffects.use_examples == true) then
+	dofile(minetest.get_modpath(minetest.get_current_modname()).."/examples.lua")
+end

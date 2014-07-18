@@ -10,3 +10,6 @@ playereffects.use_autosave = true
 
 -- The time interval between autosaves, in seconds (only used when use_autosave is true)
 playereffects.autosave_time = 10
+
+-- If true, this loads some examples from example.lua.
+playereffects.use_examples = false
