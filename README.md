@@ -5,7 +5,7 @@ This is an framework for assigning temporary status effects to players. This mod
 ## Profile
 * Name: Player Effects
 * Short name: `playereffects`
-* Current version: 0.3.0 (This is a [SemVer](http://semver.org/).)
+* Current version: 0.4.0 (This is a [SemVer](http://semver.org/).)
 * Dependencies: None!
 * Discussion page: [here](https://forum.minetest.net/viewtopic.php?f=11&t=9689)
 
