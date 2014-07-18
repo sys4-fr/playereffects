@@ -102,6 +102,23 @@ playereffects.register_effect_type("fly", "Fly mode available", "playereffects_e
 	false  -- do NOT cancel the effect on death
 )
 
+-- Repeating effect type: Adds 1 HP per second
+playereffects.register_effect_type("regen", "Regeneration", "heart.png", {"health"},
+	function(player)
+		player:set_hp(player:get_hp()+1)
+	end,
+	nil, nil, nil, 1
+)
+
+-- Repeating effect type: Adds 1 HP per 3 seconds
+playereffects.register_effect_type("slowregen", "Slow Regeneration", "heart.png", {"health"},
+	function(player)
+		player:set_hp(player:get_hp()+1)
+	end,
+	nil, nil, nil, 15
+)
+
+
 -- Dummy effect for the stree test
 playereffects.register_effect_type("stress", "Stress Test Effect", nil, {},
 	function(player)
@@ -109,6 +126,7 @@ playereffects.register_effect_type("stress", "Stress Test Effect", nil, {},
 	function(effect, player)
 	end
 )
+
 
 
 ------ Chat commands for the example effects ------
@@ -175,6 +193,26 @@ minetest.register_chatcommand("fly", {
 	privs = {},
 	func = function(name, param)
 		local ret = playereffects.apply_effect_type("fly", 60, minetest.get_player_by_name(name))
+		notify(name, ret)
+	end,
+})
+
+minetest.register_chatcommand("regen", {
+	params = "",
+	description = "Gives you 1 half heart per second 10 times, healing you by 5 hearts in total.",
+	privs = {},
+	func = function(name, param)
+		local ret = playereffects.apply_effect_type("regen", 10, minetest.get_player_by_name(name))
+		notify(name, ret)
+	end,
+})
+
+minetest.register_chatcommand("slowregen", {
+	params = "",
+	description = "Gives you 1 half heart every 3 seconds 10 times, healing you by 5 hearts in total.",
+	privs = {},
+	func = function(name, param)
+		local ret = playereffects.apply_effect_type("slowregen", 10, minetest.get_player_by_name(name))
 		notify(name, ret)
 	end,
 })

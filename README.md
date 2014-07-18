@@ -46,7 +46,7 @@ When you paused the game in singleplayer mode, the effect timers just continue a
 ## API documentation
 ### Data types
 #### Effect type (`effect_type`)
-An effect type is a description of what is later to be concretely applied as an effect to a player. An effect type, however, is *not* assigned to a player.
+An effect type is a description of what is later to be concretely applied as an effect to a player. An effect type, however, is *not* assigned to a player. There are two kinds of effect types: Repeating and non-repeating. See the section on `effect` for more information.
 
 `effect_type` is a table with these fields:
 
@@ -57,6 +57,7 @@ An effect type is a description of what is later to be concretely applied as an 
 * `icon`: This is optional. It can be the file name of a texture. Should have a size of 16px×16px. Will be exposed to the HUD, iff `hidden` is `false`.
 * `hidden`: Iff this is false, it will not be exposed to the HUD when this effect is active.
 * `cancel_on_death`: Iff this is true, the effect will be cancelled automatically when the player dies.
+* `repeat_interval` is an optional number. When specified, the effects of this type becomes a repeating effect. Repeating effects call `apply` an arbitrary number of times; non-repeating effects just call it once when the effect is created. The number specifies the interval in seconds between each call. Iff this parameter is `nil`, the effect type is a non-repeating effect.
 
 Normally you don’t need to read or edit fields of this table. Use `playereffects.register_effect_type` to add a new effect type to Player Effects.
 
@@ -70,7 +71,7 @@ The concept of groups may be changed or extended in the future.
 You can invent effect groups (like the groups in Minetest) on the fly. A group is just a string. Practically, you should use groups which other people use.
 
 #### Effect (`effect`)
-An effect is an current change of a player property (like speed, jump height, and so on). It is the realization of an effect type. All effects are temporary.
+An effect is an current change of a player property (like speed, jump height, and so on). It is the realization of an effect type. All effects are temporary. There are currently two types of effects: Repeating and non-repeating. Non-repeating effects call their `apply` callback once when they are created. Repeating effects call their apply callback multiple times with a specified interval. By default, effects are non-repeating.
 
 `effect` is a table with the following modding-relevant fields:
 
@@ -83,12 +84,13 @@ Internally, Player Effects also uses these fields:
 
 * `start_time`: The operating system time (from `os.time()`) of when the effect has been started.
 * `time_left`: The number of seconds left before the effect runs out. This number is only set when the effect starts or the effect is unfrozen because i.e. a player re-joins. You can’t use this field to blindly get the remaining time of the effect.
+* `repeat_interval_start_time` and `repeat_interval_time_left`: Same as `start_time` and `time_left`, but for repeating effects.
 
 You should normally not need to care about these internally used fields.
 
 
 ### Functions
-#### `playereffects.register_effect_type(effect_type_id, description, icon, groups, apply, cancel, hidden, cancel_on_death)`
+#### `playereffects.register_effect_type(effect_type_id, description, icon, groups, apply, cancel, hidden, cancel_on_death, repeat_interval)`
 Adds a new effect type for the Player Effects mods, so it can be later be applied to players.
 
 ##### Parameters
@@ -100,6 +102,7 @@ Adds a new effect type for the Player Effects mods, so it can be later be applie
 * `cancel`: See below.
 * `hidden` is an optional boolean value. Iff `true`, the effect description and icon will not be exposed to the player HUD. Otherwise, the effect is exposed. Default: `false`
 * `cancel_on_death` is an optional boolean value. Iff true, the effect will be cancelled automatically when the player dies. Default: `true`.
+* `repeat_interval` is an optional number. When specified, the effects of this type becomes a repeating effect. Repeating effects call `apply` an arbitrary number of times; non-repeating effects just call it once when the effect is created. The number specifies the interval in seconds between each call. Iff this parameter is `nil`, the effect type is a non-repeating effect.
 
 
 ###### `apply` function
@@ -123,13 +126,14 @@ Player Effects does not care about the return value of this function.
 ##### Return value
 Always `nil`.
 
-#### `playereffects.apply_effect_type(effect_type_id, duration, player)`
-Attempts to apply a new effect of a certain type for a certain duration to a certain player. This function can fail, although this should rarely happen.
+#### `playereffects.apply_effect_type(effect_type_id, duration, player, repeat_interval_time_left)`
+Attempts to apply a new effect of a certain type for a certain duration to a certain player. This function can fail, although this should rarely happen. This function handles non-repeating effects and repeating effects as well.
 
 ##### Parameters
 * `effect_type_id`: The identifier of the effect type. This is the name which was used in `playereffects.register_effect_type` and always a string.
-* `duration`: How long the effect. Please use only positive values and only integers.
+* `duration`: How long the effect. Please use only positive values and only integers. If a repeating effect type is specified, this number specifies the number of repetitions; for non-repeating effects this number specifies the effect duration in seconds.
 * `player`: The player object to which the new effect should be applied to.
+* `repeat_interval_time_left`: This parameter is optional and only for repeating effects. If it is a number, it specifies the time until the first call of the `apply` callback fires. By default, a full repeat interval is waited until the first call.
 
 ##### Return value
 The function either returns `false` or a number. Iff the function returns `false`, the effect was not successfully applied. The function may return `false` on these occasions:
@@ -202,6 +206,8 @@ These commands apply (or try to) apply an effect to you. You will get a response
 * `hfast`: Makes you faster for 10s. This is a hidden effect and is not exposed to the HUD.
 * `highjump`: Increases your jump height for 20s.
 * `fly`: Gives you the `fly` privilege for a minute. You keep the privilege even when you die. Better don’t mess around with this privilege manually when you use this.
+* `regen`: Gives you a half heart per second 10 times (5 hearts overall healing). This is an example of a repeating effect.
+* `slowregen`: Gives you a half heart every 15 seconds, 10 times (5 hearts overall healing). This is an example of a repeating effect.
 * `blind`: Tints the whole screen black for 5 seconds. This is highly experimental and will be drawn over many existing HUD elements. In other words, prepare your HUD to be messed up.
 * `null`: Tries to apply an effect which always fails. This demonstrates the failure of effects.
 

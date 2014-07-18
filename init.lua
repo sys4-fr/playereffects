@@ -71,7 +71,7 @@ function playereffects.next_effect_id()
 end
 
 --[=[ API functions ]=]
-function playereffects.register_effect_type(effect_type_id, description, icon, groups, apply, cancel, hidden, cancel_on_death)
+function playereffects.register_effect_type(effect_type_id, description, icon, groups, apply, cancel, hidden, cancel_on_death, repeat_interval)
 	effect_type = {}
 	effect_type.description = description
 	effect_type.apply = apply
@@ -92,12 +92,13 @@ function playereffects.register_effect_type(effect_type_id, description, icon, g
 	else
 		effect_type.cancel_on_death = true
 	end
+	effect_type.repeat_interval = repeat_interval
 
 	playereffects.effect_types[effect_type_id] = effect_type
 	minetest.log("action", "[playereffects] Effect type "..effect_type_id.." registered!")
 end
 
-function playereffects.apply_effect_type(effect_type_id, duration, player)
+function playereffects.apply_effect_type(effect_type_id, duration, player, repeat_interval_time_left)
 	local start_time = os.time()
 	local is_player = false
 	if(type(player)=="userdata") then
@@ -118,15 +119,17 @@ function playereffects.apply_effect_type(effect_type_id, duration, player)
 		playereffects.cancel_effect_group(v, playername)
 	end
 
-	local status = playereffects.effect_types[effect_type_id].apply(player)
 	local metadata
-
-	if(status == false) then
-		minetest.log("action", "[playereffects] Attempt to apply effect type "..effect_type_id.." to player "..playername.." failed!")
-		return false
-	else
-		metadata = status
+	if(playereffects.effect_types[effect_type_id].repeat_interval == nil) then
+		local status = playereffects.effect_types[effect_type_id].apply(player)
+		if(status == false) then
+			minetest.log("action", "[playereffects] Attempt to apply effect type "..effect_type_id.." to player "..playername.." failed!")
+			return false
+		else
+			metadata = status
+		end
 	end
+
 
 	local effect_id = playereffects.next_effect_id()
 	local smallest_hudpos
@@ -154,10 +157,18 @@ function playereffects.apply_effect_type(effect_type_id, duration, player)
 	else
 		free_hudpos = biggest_hudpos + 1
 	end
+
+	local repeat_interval = playereffects.effect_types[effect_type_id].repeat_interval
+	if(repeat_interval ~= nil) then
+		if(repeat_interval_time_left == nil) then
+			repeat_interval_time_left = repeat_interval
+		end
+	end
+
 	--[[ show no more than 20 effects on the screen, so that hud_update does not need to be called so often ]]
 	local text_id, icon_id
 	if(free_hudpos <= 20) then
-		text_id, icon_id = playereffects.hud_effect(effect_type_id, player, free_hudpos, duration)
+		text_id, icon_id = playereffects.hud_effect(effect_type_id, player, free_hudpos, duration, repeat_interval_time_left)
 		local hudinfo = {
 				text_id = text_id,
 				icon_id = icon_id,
@@ -173,16 +184,47 @@ function playereffects.apply_effect_type(effect_type_id, duration, player)
 			effect_id = effect_id,
 			effect_type_id = effect_type_id,
 			start_time = start_time,
+			repeat_interval_start_time = start_time,
 			time_left = duration,
+			repeat_interval_time_left = repeat_interval_time_left,
 			metadata = metadata,
 	}
 
 	playereffects.effects[effect_id] = effect
 
 --	minetest.log("action", "[playereffects] Effect type "..effect_type_id.." applied to player "..playername.." (effect_id = "..effect_id..").")
-	minetest.after(duration, function(effect_id) playereffects.cancel_effect(effect_id) end, effect_id)
+	if(repeat_interval ~= nil) then
+		minetest.after(repeat_interval_time_left, playereffects.repeater, effect_id, duration, player, playereffects.effect_types[effect_type_id].apply)
+	else
+		minetest.after(duration, function(effect_id) playereffects.cancel_effect(effect_id) end, effect_id)
+	end
 
 	return effect_id
+end
+
+function playereffects.repeater(effect_id, repetitions, player, apply)
+	local effect = playereffects.effects[effect_id]
+	if(effect ~= nil) then
+		local repetitions = effect.time_left
+		apply(player)
+		repetitions = repetitions - 1
+		effect.time_left = repetitions
+		if(repetitions <= 0) then
+			playereffects.cancel_effect(effect_id)
+		else
+			local repeat_interval = playereffects.effect_types[effect.effect_type_id].repeat_interval
+			effect.repeat_interval_time_left = repeat_interval
+			effect.repeat_interval_start_time = os.time()
+			minetest.after(
+				repeat_interval,
+				playereffects.repeater,
+				effect_id,
+				repetitions,
+				player,
+				apply
+			)
+		end
+	end
 end
 
 function playereffects.cancel_effect_type(effect_type_id, cancel_all, playername)
@@ -272,12 +314,20 @@ function playereffects.save_to_file()
 		end
 	end
 	for id,effect in pairs(playereffects.effects) do
-		local new_duration = effect.time_left - os.difftime(save_time, effect.start_time)
+		local new_duration, new_repeat_duration
+		if(playereffects.effect_types[effect.effect_type_id].repeat_interval ~= nil) then
+			new_duration = effect.time_left
+			new_repeat_duration = effect.repeat_interval_time_left - os.difftime(save_time, effect.repeat_interval_start_time)
+		else
+			new_duration = effect.time_left - os.difftime(save_time, effect.start_time)
+		end
 		local new_effect = {
 			effect_id = effect.effect_id,
 			effect_type_id = effect.effect_type_id,
 			time_left = new_duration,
+			repeat_interval_time_left = new_repeat_duration,
 			start_time = effect.start_time,
+			repeat_interval_start_time = effect.repeat_interval_start_time,
 			playername = effect.playername,
 			metadata = effect.metadata
 		}
@@ -346,7 +396,7 @@ minetest.register_on_joinplayer(function(player)
 	if(playereffects.inactive_effects[playername] ~= nil) then
 		for i=1,#playereffects.inactive_effects[playername] do
 			local effect = playereffects.inactive_effects[playername][i]
-			playereffects.apply_effect_type(effect.effect_type_id, effect.time_left, player)
+			playereffects.apply_effect_type(effect.effect_type_id, effect.time_left, player, effect.repeat_interval_time_left)
 		end
 		playereffects.inactive_effects[playername] = nil
 	end
@@ -388,8 +438,14 @@ function playereffects.hud_update(player)
 				local effect = playereffects.effects[effect_id]
 				if(effect ~= nil and hudinfo.text_id ~= nil) then
 					local description = playereffects.effect_types[effect.effect_type_id].description
-					local time_left = os.difftime(effect.start_time + effect.time_left, now)
-					player:hud_change(hudinfo.text_id, "text", description .. " ("..tostring(time_left).." s)")
+					local repeat_interval = playereffects.effect_types[effect.effect_type_id].repeat_interval
+					if(repeat_interval ~= nil) then
+						local repeat_interval_time_left = os.difftime(effect.repeat_interval_start_time + effect.repeat_interval_time_left, now)
+						player:hud_change(hudinfo.text_id, "text", description .. " ("..tostring(effect.time_left).."/"..tostring(repeat_interval_time_left) .. "s )")
+					else
+						local time_left = os.difftime(effect.start_time + effect.time_left, now)
+						player:hud_change(hudinfo.text_id, "text", description .. " ("..tostring(time_left).." s)")
+					end
 				end
 			end
 		end
@@ -415,7 +471,7 @@ function playereffects.hud_clear(player)
 	end
 end
 
-function playereffects.hud_effect(effect_type_id, player, pos, time_left)
+function playereffects.hud_effect(effect_type_id, player, pos, time_left, repeat_interval_time_left)
 	local text_id, icon_id
 	local effect_type = playereffects.effect_types[effect_type_id]
 	if(playereffects.use_hud == true and effect_type.hidden == false) then
@@ -425,11 +481,17 @@ function playereffects.hud_effect(effect_type_id, player, pos, time_left)
 		else
 			color = 0xF0BAFF
 		end
+		local description = playereffects.effect_types[effect_type_id].description
+		if(repeat_interval_time_left ~= nil) then
+			text =  description .. " ("..tostring(time_left).."/"..tostring(repeat_interval_time_left) .. "s )"
+		else
+			text = description .. " ("..tostring(time_left).." s)"
+		end
 		text_id = player:hud_add({
 			hud_elem_type = "text",
 			position = { x = 1, y = 0.3 },
 			name = "effect_"..effect_type_id,
-			text = playereffects.effect_types[effect_type_id].description .. " ("..tostring(time_left).." s)",
+			text = text,
 			scale = { x = 170, y = 20},
 			alignment = { x = -1, y = 0 },
 			direction = 1,
