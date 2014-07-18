@@ -189,7 +189,7 @@ Returns all active effects of a player.
 A table of all `effect`s which belong to the player. If the player does not exist, this function returns an empty table.
 
 ## Examples
-This mod comes with extensive examples. The examples are currently enabled by default and will be disabled from the first stable release. See `examples.lua` to find out how they are programmed. The examples are only for demonstration purposes. They are not intended to be used in an actual game.
+This mod comes with extensive examples. The examples are disabled by default. Edit `settings.lua` to enable the examples. See `examples.lua` to find out how they are programmed. The examples are only for demonstration purposes. They are not intended to be used in an actual game.
 
 ### Chat commands
 The examples are mainly accessible with chat commands. Since this is just an example, everyone can use these examples.
