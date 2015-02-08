@@ -192,7 +192,6 @@ function playereffects.apply_effect_type(effect_type_id, duration, player, repea
 
 	playereffects.effects[effect_id] = effect
 
---	minetest.log("action", "[playereffects] Effect type "..effect_type_id.." applied to player "..playername.." (effect_id = "..effect_id..").")
 	if(repeat_interval ~= nil) then
 		minetest.after(repeat_interval_time_left, playereffects.repeater, effect_id, duration, player, playereffects.effect_types[effect_type_id].apply)
 	else
@@ -281,7 +280,6 @@ function playereffects.cancel_effect(effect_id)
 		end
 		playereffects.effect_types[effect.effect_type_id].cancel(effect, player)
 		playereffects.effects[effect_id] = nil
---		minetest.log("action", "[playereffects] Effect type "..effect.effect_type_id.." cancelled from player "..effect.playername.."!")
 	end
 end
 
