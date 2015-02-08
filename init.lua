@@ -72,7 +72,7 @@ end
 
 --[=[ API functions ]=]
 function playereffects.register_effect_type(effect_type_id, description, icon, groups, apply, cancel, hidden, cancel_on_death, repeat_interval)
-	effect_type = {}
+	local effect_type = {}
 	effect_type.description = description
 	effect_type.apply = apply
 	effect_type.groups = groups
