@@ -482,6 +482,7 @@ function playereffects.hud_effect(effect_type_id, player, pos, time_left, repeat
 			color = 0xF0BAFF
 		end
 		local description = playereffects.effect_types[effect_type_id].description
+		local text
 		if(repeat_interval_time_left ~= nil) then
 			text =  description .. " ("..tostring(time_left).."/"..tostring(repeat_interval_time_left) .. "s )"
 		else
