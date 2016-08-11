@@ -297,6 +297,16 @@ function playereffects.get_player_effects(playername)
 	end
 end
 
+function playereffects.has_effect_type(playername, effect_type_id)
+	local pe = playereffects.get_player_effects(playername)
+	for i=1,#pe do
+		if pe[i].effect_type_id == effect_type_id then
+			return true
+		end
+	end
+	return false
+end
+
 --[=[ Saving all data to file ]=]
 function playereffects.save_to_file()
 	local save_time = os.time()

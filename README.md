@@ -192,6 +192,13 @@ Returns all active effects of a player.
 ##### Return value
 A table of all `effect`s which belong to the player. If the player does not exist, this function returns an empty table.
 
+#### `playereffects.has_effect_type(playername, effect_type_id)`
+Returns `true` iff the provided player has an effect of the specified effect type, `false` otherwise.
+
+##### Parameters
+* `playername`: Name of the player to check the existance of the effect type for
+* `effect_type_id`: Identifier of the effect type.
+
 ## Examples
 This mod comes with extensive examples. The examples are disabled by default. Edit `settings.lua` to enable the examples. See `examples.lua` to find out how they are programmed. The examples are only for demonstration purposes. They are not intended to be used in an actual game.
 
@@ -216,3 +223,5 @@ These commands apply (or try to) apply an effect to you. You will get a response
 
 #### Testing
 * `stresstest [number]`: Applies `number` dummy effects which don’t do anything to you. Iff omitted, `number` is assumed to be 100. This command is there to test the performance of this mod for absurdly large effect numbers.
+
+
